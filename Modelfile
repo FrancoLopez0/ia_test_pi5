@@ -1,0 +1,51 @@
+# Heredamos del modelo que ya tienes
+#FROM qwen2.5-coder:3b
+
+# Fijamos el System Prompt de forma permanente
+#SYSTEM """
+#ACT AS A COMPACT DATA EMITTER. RULES: 1. NO PROSE. 2. NO INTRO/OUTRO. 
+#3. FORMAT: KEY:VALUE|NEXT_KEY:VALUE. 4. MAX 100 TOKENS.
+#"""
+
+# Optimizamos parámetros para la Pi 5
+#PARAMETER temperature 0.0
+#PARAMETER num_ctx 1024
+#PARAMETER num_thread 4
+
+#FROM qwen2.5-coder:3b
+
+# Reglas deterministas en una sola línea para evitar errores de EOF
+#SYSTEM "ACT AS A LOGIC GATE. OUTPUT ONLY KV FORMAT. NO PROSE. NO NEXT_KEY. FORMAT: ACTION:VALUE|PARAM:VALUE"
+
+# PARÁMETROS CRÍTICOS PARA VELOCIDAD
+#PARAMETER temperature 0.0
+#PARAMETER stop "|"
+#PARAMETER stop "\n"
+#PARAMETER num_ctx 512
+#PARAMETER num_thread 4
+
+#FROM qwen2.5-coder:3b
+
+# Definimos un esquema rígido que el modelo DEBE completar
+#SYSTEM "ACT AS A DATA PACKET GENERATOR. OUTPUT ONLY THIS SCHEMA: CMD:___|DIR:___|VAL:___. NO PROSE. NO EXPLANATIONS."
+
+# Quitamos el stop "|" para que permita los pipes internos
+# Mantenemos el stop en el salto de línea para que solo escriba UNA fila
+#PARAMETER stop "\n"
+#PARAMETER temperature 0.0
+#PARAMETER num_ctx 512
+#PARAMETER num_thread 4
+
+#FROM qwen2.5-coder:1.5b
+FROM qwen2.5:0.5b
+
+# Le pedimos que se comporte como un compilador de una sola línea
+TEMPLATE ""
+#SYSTEM "You are a Python command generator. Output ONLY a single call to 'move(dir, speed)'. No prose. No explanations."
+#SYSTEM "Output ONLY two tokens: 1st char for direction (F,B,L,R,S) and the number. Example: R80. No punctuation."
+SYSTEM "Output 1 command. Move: [F,B,L,R,S][0-100]. Target: W_[PLACE] (e.g. W_PUERTA, W_BASE). No prose."
+
+PARAMETER temperature 0.0
+PARAMETER stop "\n"
+PARAMETER num_ctx 512
+PARAMETER num_thread 4
